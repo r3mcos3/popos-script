@@ -52,7 +52,26 @@ sudo nala upgrade -y
 echo "--- System updated ---"
 echo ""
 
-# 4. Install programs
+
+# 4. Ask for additional programs to install
+echo "--- Checking for additional programs ---"
+echo "The following programs are currently set to be installed:"
+printf "  - %s\n" "${PROGRAMS_TO_INSTALL[@]}"
+echo ""
+read -p "Do you want to add more programs to install? (comma-separated, or press Enter to skip): " additional_programs
+
+if [ -n "$additional_programs" ]; then
+    # Replace commas with spaces
+    additional_programs_spaced=$(echo "$additional_programs" | tr ',' ' ')
+    # Add to the array
+    PROGRAMS_TO_INSTALL+=($additional_programs_spaced)
+    echo "--- Updated list of programs to install: ---"
+    printf "  - %s\n" "${PROGRAMS_TO_INSTALL[@]}"
+fi
+echo ""
+
+
+# 5. Install programs
 echo "--- Installing programs via nala ---"
 for program in "${PROGRAMS_TO_INSTALL[@]}"; do
     if ! dpkg -l | grep -q "^ii  $program "; then
@@ -65,7 +84,7 @@ done
 echo "--- All programs installed ---"
 echo ""
 
-# 5. Install Zap (a lightweight Zsh plugin manager)
+# 6. Install Zap (a lightweight Zsh plugin manager)
 #    This will install Zap and initialize .zshrc.
 if [ ! -d "$HOME/.zap" ]; then
     echo "--- Installing Zap Zsh Plugin Manager ---"
@@ -79,7 +98,7 @@ else
     echo ""
 fi
 
-# 4. Fetch custom .zshrc
+# 7. Fetch custom .zshrc
 echo "--- Fetching custom .zshrc ---"
 
 # Create a backup of the existing .zshrc if it exists
@@ -98,7 +117,7 @@ wget -O "$HOME/.zshrc" "$ZSHRC_URL"
 echo "--- .zshrc successfully placed ---"
 echo ""
 
-# 5. Set Zsh as default shell
+# 8. Set Zsh as default shell
 if [ "$SHELL" != "/bin/zsh" ]; then
     echo "--- Setting Zsh as default shell ---"
     # This command may prompt for your password
