@@ -60,13 +60,18 @@ echo "--- Checking for additional programs ---"
 echo "The following programs are currently set to be installed:"
 printf "  - %s\n" "${PROGRAMS_TO_INSTALL[@]}"
 echo ""
-read -p "Do you want to add more programs to install? (comma-separated, or press Enter to skip): " additional_programs
+read -r -p "Do you want to add more programs to install? (comma-separated, or press Enter to skip): " additional_programs
 
 if [ -n "$additional_programs" ]; then
-    # Replace commas with spaces
-    additional_programs_spaced=$(echo "$additional_programs" | tr ',' ' ')
-    # Add to the array
-    PROGRAMS_TO_INSTALL+=($additional_programs_spaced)
+    # Replace commas with spaces for read -a
+    additional_programs_spaced=${additional_programs//,/ }
+    
+    # Read the space-separated string into an array
+    read -ra additional_programs_array <<< "$additional_programs_spaced"
+    
+    # Add the new programs to the main array
+    PROGRAMS_TO_INSTALL+=("${additional_programs_array[@]}")
+    
     echo "--- Updated list of programs to install: ---"
     printf "  - %s\n" "${PROGRAMS_TO_INSTALL[@]}"
 fi
