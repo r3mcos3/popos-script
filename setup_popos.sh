@@ -86,7 +86,39 @@ done
 echo "--- All programs installed ---"
 echo ""
 
-# 6. Install Zap (a lightweight Zsh plugin manager)
+# 6. Install a Nerd Font (Fira Code) for icons
+echo "--- Installing Fira Code Nerd Font ---"
+FONT_NAME="FiraCode"
+FONT_URL="https://github.com/ryanoasis/nerd-fonts/releases/latest/download/${FONT_NAME}.zip"
+FONT_DIR="$HOME/.local/share/fonts"
+
+# Check if font is already installed
+if fc-list | grep -q "$FONT_NAME Nerd Font"; then
+    echo "Fira Code Nerd Font is already installed, skipping."
+else
+    echo "Downloading and installing Fira Code Nerd Font..."
+    # Create fonts directory if it doesn't exist
+    mkdir -p "$FONT_DIR"
+
+    # Download the font zip file
+    wget -q --show-progress -O "/tmp/${FONT_NAME}.zip" "$FONT_URL"
+
+    # Unzip the font
+    unzip -o "/tmp/${FONT_NAME}.zip" -d "$FONT_DIR"
+
+    # Clean up the zip file
+    rm "/tmp/${FONT_NAME}.zip"
+
+    # Update the font cache
+    echo "Updating font cache..."
+    fc-cache -f -v
+
+    echo "Fira Code Nerd Font installed successfully."
+fi
+echo ""
+
+
+# 7. Install Zap (a lightweight Zsh plugin manager)
 #    This will install Zap and initialize .zshrc.
 if [ ! -d "$HOME/.zap" ]; then
     echo "--- Installing Zap Zsh Plugin Manager ---"
@@ -100,7 +132,7 @@ else
     echo ""
 fi
 
-# 7. Fetch custom .zshrc
+# 8. Fetch custom .zshrc
 echo "--- Fetching custom .zshrc ---"
 
 # Create a backup of the existing .zshrc if it exists
@@ -119,7 +151,7 @@ wget -O "$HOME/.zshrc" "$ZSHRC_URL"
 echo "--- .zshrc successfully placed ---"
 echo ""
 
-# 8. Set Zsh as default shell
+# 9. Set Zsh as default shell
 if [ "$SHELL" != "/bin/zsh" ]; then
     echo "--- Setting Zsh as default shell ---"
     # This command may prompt for your password
