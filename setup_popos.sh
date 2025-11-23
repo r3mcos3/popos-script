@@ -24,7 +24,6 @@ ZSHRC_URL="https://raw.githubusercontent.com/yourusername/dotfiles/main/.zshrc" 
 #    Add or remove programs from this list.
 PROGRAMS_TO_INSTALL=(
     "zsh"
-    "nala"
     "gh"
 )
 
@@ -34,19 +33,31 @@ PROGRAMS_TO_INSTALL=(
 # Request sudo privileges at the beginning to avoid interruptions.
 sudo -v
 
-# 1. Update system
-echo "--- Updating system ---"
+# 1. Install nala first to use it for updates
+echo "--- Installing nala ---"
 sudo apt update
-sudo apt upgrade -y
+sudo apt install -y nala
+echo "--- Nala installed ---"
+echo ""
+
+# 2. Fetch best mirrors
+echo "--- Fetching best mirrors with nala ---"
+sudo nala fetch
+echo "--- Mirrors fetched ---"
+echo ""
+
+# 3. Update system using nala
+echo "--- Updating system using nala ---"
+sudo nala upgrade -y
 echo "--- System updated ---"
 echo ""
 
-# 2. Install programs
-echo "--- Installing programs via apt ---"
+# 4. Install programs
+echo "--- Installing programs via nala ---"
 for program in "${PROGRAMS_TO_INSTALL[@]}"; do
     if ! dpkg -l | grep -q "^ii  $program "; then
         echo "Installing $program..."
-        sudo apt install -y "$program"
+        sudo nala install -y "$program"
     else
         echo "$program is already installed, skipping."
     fi
@@ -54,7 +65,7 @@ done
 echo "--- All programs installed ---"
 echo ""
 
-# 3. Install Zap (a lightweight Zsh plugin manager)
+# 5. Install Zap (a lightweight Zsh plugin manager)
 #    This will install Zap and initialize .zshrc.
 if [ ! -d "$HOME/.zap" ]; then
     echo "--- Installing Zap Zsh Plugin Manager ---"
