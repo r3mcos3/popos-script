@@ -29,28 +29,75 @@ PROGRAMS_TO_INSTALL=(
     "unzip"
 )
 
+# --- DRY RUN LOGIC ---
+DRY_RUN=false
+
+_HELP_MESSAGE() {
+    echo "Usage: $0 [-d|--dry-run] [-h|--help]"
+    echo ""
+    echo "  -d, --dry-run   Simulate script execution without making actual changes."
+    echo "  -h, --help      Display this help message."
+    echo ""
+    echo "This script installs and configures commonly used programs on Pop!_OS."
+}
+
+# Parse arguments
+while [[ "$#" -gt 0 ]]; do
+    case "$1" in
+        -d|--dry-run)
+            DRY_RUN=true
+            echo "--- DRY RUN MODE ENABLED ---"
+            shift
+            ;;
+        -h|--help)
+            _HELP_MESSAGE
+            exit 0
+            ;;
+        *)
+            echo "Unknown option: $1"
+            _HELP_MESSAGE
+            exit 1
+            ;;
+    esac
+done
+
+# Helper function to run commands or just echo them in dry-run mode
+run_command() {
+    if "$DRY_RUN"; then
+        echo "DRY RUN: $*"
+    else
+        "$@"
+    fi
+}
 
 # --- SCRIPT START ---
 
 # Request sudo privileges at the beginning to avoid interruptions.
-sudo -v
+# This command is run regardless of DRY_RUN as it just asks for credentials.
+if ! "$DRY_RUN"; then
+    sudo -v
+fi
 
 # 1. Install nala first to use it for updates
 echo "--- Installing nala ---"
-sudo apt update
-sudo apt install -y nala
+run_command sudo apt update
+if ! dpkg -l | grep -q "^ii  nala "; then
+    run_command sudo apt install -y nala
+else
+    echo "nala is already installed, skipping."
+fi
 echo "--- Nala installed ---"
 echo ""
 
 # 2. Fetch best mirrors
 echo "--- Fetching best mirrors with nala ---"
-sudo nala fetch
+run_command sudo nala fetch
 echo "--- Mirrors fetched ---"
 echo ""
 
 # 3. Update system using nala
 echo "--- Updating system using nala ---"
-sudo nala upgrade -y
+run_command sudo nala upgrade -y
 echo "--- System updated ---"
 echo ""
 
@@ -83,7 +130,7 @@ echo "--- Installing programs via nala ---"
 for program in "${PROGRAMS_TO_INSTALL[@]}"; do
     if ! dpkg -l | grep -q "^ii  $program "; then
         echo "Installing $program..."
-        sudo nala install -y "$program"
+        run_command sudo nala install -y "$program"
     else
         echo "$program is already installed, skipping."
     fi
@@ -102,21 +149,20 @@ if fc-list | grep -q "$FONT_NAME Nerd Font"; then
     echo "Fira Code Nerd Font is already installed, skipping."
 else
     echo "Downloading and installing Fira Code Nerd Font..."
-    # Create fonts directory if it doesn't exist
-    mkdir -p "$FONT_DIR"
+    run_command mkdir -p "$FONT_DIR"
 
     # Download the font zip file
-    wget -q --show-progress -O "/tmp/${FONT_NAME}.zip" "$FONT_URL"
+    run_command wget -q --show-progress -O "/tmp/${FONT_NAME}.zip" "$FONT_URL"
 
     # Unzip the font
-    unzip -o "/tmp/${FONT_NAME}.zip" -d "$FONT_DIR"
+    run_command unzip -o "/tmp/${FONT_NAME}.zip" -d "$FONT_DIR"
 
     # Clean up the zip file
-    rm "/tmp/${FONT_NAME}.zip"
+    run_command rm "/tmp/${FONT_NAME}.zip"
 
     # Update the font cache
     echo "Updating font cache..."
-    fc-cache -f -v
+    run_command fc-cache -f -v
 
     echo "Fira Code Nerd Font installed successfully."
 fi
@@ -129,7 +175,7 @@ if [ ! -d "$HOME/.zap" ]; then
     echo "--- Installing Zap Zsh Plugin Manager ---"
     # Zap's installer creates or modifies ~/.zshrc to initialize itself.
     # We execute this in a Zsh subshell.
-    zsh <(curl -s https://raw.githubusercontent.com/zap-zsh/zap/master/install.zsh) --branch release-v1
+    run_command zsh -c "$(curl -fsSL https://raw.githubusercontent.com/zap-zsh/zap/master/install.zsh) --branch release-v1"
     echo "--- Zap installed ---"
     echo ""
 else
@@ -143,11 +189,11 @@ echo "--- Fetching custom .zshrc ---"
 # Create a backup of the existing .zshrc if it exists
 if [ -f "$HOME/.zshrc" ]; then
     echo "Backing up existing .zshrc to .zshrc.bak"
-    mv "$HOME/.zshrc" "$HOME/.zshrc.bak"
+    run_command mv "$HOME/.zshrc" "$HOME/.zshrc.bak"
 fi
 
 echo "Downloading .zshrc from: $ZSHRC_URL"
-wget -O "$HOME/.zshrc" "$ZSHRC_URL"
+run_command wget -O "$HOME/.zshrc" "$ZSHRC_URL"
 
 # NOTE: If you download a custom .zshrc (as above), ensure it
 # contains the Zap initialization or correctly sources the Zap configuration,
@@ -160,7 +206,7 @@ echo ""
 if [ "$SHELL" != "/bin/zsh" ]; then
     echo "--- Setting Zsh as default shell ---"
     # This command may prompt for your password
-    chsh -s "$(which zsh)"
+    run_command chsh -s "$(which zsh)"
     echo "--- Zsh is now the default shell. ---"
     echo "NOTE: You must log out and log back in for this to take effect."
     echo ""
