@@ -25,6 +25,8 @@ ZSHRC_URL="https://raw.githubusercontent.com/r3mcos3/dotfiles/master/zsh-popos/.
 PROGRAMS_TO_INSTALL=(
     "zsh"
     "gh"
+    "curl"
+    "unzip"
 )
 
 
