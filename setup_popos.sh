@@ -18,7 +18,7 @@ set -e
 
 # 1. URL to your raw .zshrc file (e.g., from GitHub Gist or a public repo)
 # Example: ZSHRC_URL="https://raw.githubusercontent.com/yourusername/dotfiles/main/.zshrc"
-ZSHRC_URL="https://raw.githubusercontent.com/yourusername/dotfiles/main/.zshrc" # Customize this!
+ZSHRC_URL="https://raw.githubusercontent.com/r3mcos3/dotfiles/master/zsh-popos/.zshrc" # Customize this!
 
 # 2. List of programs you want to install via apt.
 #    Add or remove programs from this list.
