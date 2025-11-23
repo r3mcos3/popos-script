@@ -16,19 +16,31 @@ This script automates the setup and configuration of a new Pop!_OS installation.
 
 ## How to Use
 
-1.  **Customize the Script (Optional):**
+1.  **Alternatively, Run Directly from GitHub:**
+
+    You can execute this script directly from GitHub without cloning the repository first. This is useful for new Pop!_OS installations.
+
+    ```bash
+    bash <(curl -s https://raw.githubusercontent.com/r3mcos3/popos-script/main/setup_popos.sh)
+    ```
+
+    The script will ask for your `sudo` password at the beginning and then run non-interactively.
+
+2.  **Customize the Script (Optional):**
 
     Open `setup_popos.sh` and modify the following variables to fit your needs:
     - `ZSHRC_URL`: Change the URL to point to your own raw `.zshrc` file.
     - `PROGRAMS_TO_INSTALL`: Add or remove programs from the list.
 
-2.  **Make the Script Executable:**
+3.  **Make the Script Executable (if running locally):**
+
+    If you cloned the repository and want to run the script locally, make it executable:
 
     ```bash
     chmod +x setup_popos.sh
     ```
 
-3.  **Run the Script:**
+4.  **Run the Script (if running locally):**
 
     ```bash
     ./setup_popos.sh
@@ -36,7 +48,7 @@ This script automates the setup and configuration of a new Pop!_OS installation.
 
     The script will ask for your `sudo` password at the beginning and then run non-interactively.
 
-4.  **Log Out and Log Back In:**
+5.  **Log Out and Log Back In:**
 
     For the default shell change to take effect, you must log out of your session and log back in.
 
